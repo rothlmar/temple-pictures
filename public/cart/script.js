@@ -10,6 +10,16 @@ firebase.initializeApp(config);
 
 firebase.auth().signInAnonymously().catch(console.log);
 
+let uid;
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    uid = user.uid;
+  }
+})
+
 function placeOrder() {
-    alert('hello!');
+  const newOrder = firebase.database().ref(`users/${uid}/orders`).push();
+  newOrder.set({ value: true });
+  // alert('hello!');
 }

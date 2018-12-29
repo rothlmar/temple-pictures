@@ -1,6 +1,14 @@
 {
   "rules": {
-    ".read": true,
-    ".write": "auth != null"
+    "temples": {
+      ".read": true,
+      ".write": false
+    },
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
   }
 }
