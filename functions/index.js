@@ -22,35 +22,38 @@ exports.placeOrder = functions.database.ref('/users/{uid}/orders/{oid}')
     return axios({ url: url,
 		   method: 'post',
 		   headers: { 'Authorization': `Bearer ${TOKEN}` },
-		   data: orderBody(lineItems(change.after.val().cart))
-		 }).then((response) => {
-		   change.after.ref.set({
-		     status: 'placed',
-		     url: response.data.checkout.checkout_page_url,
-		     checkout: response.data.checkout
-		   })
-		 }).catch(error => {
-		   console.log(error.response.data);
-		   if (error.response) {
-		     change.after.ref.set({
-		       status: 'error',
-		       response: error.response.data
-		     })
-		   }
-		 })
+		   data: orderBody(lineItems(change.after.val().cart,
+					     context.params.oid)) })
+      .then((response) => {
+	change.after.ref.set({
+	  status: 'placed',
+	  url: response.data.checkout.checkout_page_url,
+	  checkout: response.data.checkout
+	})
+      })
+      .catch(error => {
+	console.log(error.response.data);
+	if (error.response) {
+	  change.after.ref.set({
+	    status: 'error',
+	    response: error.response.data
+	  })
+	}
+      })
       .then(() => change.after.ref.parent.parent.child('cart').set({}))
   });
 
 
-function orderBody(lineItems) {
+function orderBody(lineItems, referenceId) {
   return {
     idempotency_key: uuidv4(),
     order: {
-      reference_id: 'reference_order_id',
+      reference_id: referenceId,
       line_items: lineItems
     },
     ask_for_shipping_address: true,
-    merchant_support_email: "rothlmar@gmail.com"
+    merchant_support_email: "rothlmar@gmail.com",
+    redirect_url: "https://tmpl-884c0.firebaseapp.com/confirm/"
   }
 }
 
