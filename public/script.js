@@ -8,6 +8,8 @@ var config = {
 };
 firebase.initializeApp(config);
 
+let uid;
+
 firebase.database().ref('/temples').once('value')
   .then(function(snapshot) {
     const gallery = document.getElementById('gallery');
@@ -16,8 +18,14 @@ firebase.database().ref('/temples').once('value')
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
+    uid = user.uid;
   }
 });
+
+function addItemToCart(metadata) {
+  const cart = firebase.database().ref(`users/${uid}/cart`).push();
+  cart.set(metadata)
+}
 
 firebase.auth().signInAnonymously().catch(console.log);
 
@@ -47,7 +55,8 @@ function buildCard(metadata) {
   const addToCart = document.createElement('button')
   addToCart.className = 'btn btn-primary';
   addToCart.innerHTML = 'Add to Cart';
+  addToCart.onclick = function() { addItemToCart(metadata) };
   body.appendChild(addToCart);
-  
+
   return card;
 }

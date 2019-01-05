@@ -11,15 +11,42 @@ firebase.initializeApp(config);
 firebase.auth().signInAnonymously().catch(console.log);
 
 let uid;
+let cart;
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     uid = user.uid;
+    const items = document.getElementById('items');
+    firebase.database().ref(`users/${uid}/cart`).once('value')
+      .then(function(snapshot) {
+	if (snapshot.val()) {
+	  cart = Object.values(snapshot.val());
+	  cart.map(buildItem).forEach(elt => items.appendChild(elt));
+	}
+      });
   }
-})
+});
+
+function buildItem(metadata) {
+  const item = document.createElement('tr');
+  const name = document.createElement('td');
+  name.innerHTML = metadata.name;
+  item.appendChild(name);
+
+  const uuid = document.createElement('td');
+  uuid.innerHTML = metadata.thumbnail;;
+  item.appendChild(uuid);
+
+  return item;
+}
 
 function placeOrder() {
-  const newOrder = firebase.database().ref(`users/${uid}/orders`).push();
-  newOrder.set({ value: true });
-  // alert('hello!');
+  const order = firebase.database().ref(`users/${uid}/orders`).push();
+  firebase.database().ref(`users/${uid}/orders/${order.key}`)
+    .on('value', function(snapshot) {
+      if (snapshot && snapshot.val().url) {
+	window.location = snapshot.val().url;
+      }
+    });
+  order.set({ status: 'open', cart: cart });
 }
