@@ -14,8 +14,9 @@
     <style>
       body { padding-top: 40px; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.7.2/firebase.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </head>
   <body>
     <header>
@@ -34,16 +35,54 @@
 	</div>
       </section>
 
-      <div>
-	<div class="container">
-	  <table class="table">
-	    <tbody id="items">
-	    </tbody>
-	  </table>
-	  <button class="btn btn-primary" onclick="placeOrder()">
-	    Buy Now
-	  </button>
-	</div>
+      <div class="container" id="orders">
+	<table class="table">
+	  <thead>
+	    <tr>
+	      <th>Name</th>
+	      <th>Size</th>
+	      <th>Quantity</th>
+	      <th>Finish</th>
+	      <th>Price (each)</th>
+	      <th>Price (total)</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr v-for="(item, index) in cart">
+	      <td>{{ item.name }}</td>
+	      <td>
+		<select class="form-control" v-model="item.size">
+		  <option v-for="size in sizes">{{ size }}</option>
+		</select>
+	      </td>
+	      <td>
+		<input class="form-control"
+		       v-model="item.quantity"
+		       type="number">
+	      </td>
+	      <td>
+		<select class="form-control" v-model="item.finish">
+		  <option v-for="finish in finishes">{{ finish }}</option>
+		</select>
+	      </td>
+	      <td>{{ prices[index].price }}</td>
+	      <td>{{ prices[index].priceTotal }}</td>
+	    </tr>
+	    <tr>
+	      <td colspan="5">Total Order:</td>
+	      <td>{{ totalPrice }}</td>
+	    </tr>
+	  </tbody>
+	</table>
+	<button class="btn btn-primary" onclick="placeOrder()">
+	  Buy Now
+	</button>
+	<p>
+	  For special requests, e.g. greeting cards, wrapped canvas, metal
+	  prints or gifts, please send an
+	  <a href="mailto:rothlmar+photos@gmail.com">email</a>
+	  explaining what you'd like.
+	</p>
       </div>
     </main>
   </body>

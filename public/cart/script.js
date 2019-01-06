@@ -11,7 +11,40 @@ firebase.initializeApp(config);
 firebase.auth().signInAnonymously().catch(console.log);
 
 let uid;
-let cart;
+let data = {
+  cart: [],
+  finishes: ['Lustre', 'Glossy', 'Metallic'],
+  sizes: ['4x6 (Pack of 5)', '5x7', '8x10', '8x12', '12x16',
+	  '12x18', '16x20', '16x24', '20x30']
+};
+const priceMap = {
+  '4x6 (Pack of 5)': 10,
+  '5x7': 5,
+  '8x10': 10,
+  '8x12': 12,
+  '12x16': 15,
+  '12x18': 17,
+  '16x20': 25,
+  '16x24': 30,
+  '20x30': 50
+}
+
+let computed = {
+  prices: function() {
+    return this.cart.map(item => {
+      const price = priceMap[item.size];
+      const priceTotal = item.quantity >= 0 ? item.quantity*price : 0;
+      return { price, priceTotal };
+    })
+  },
+  totalPrice: function() {
+    return this.prices
+      .map(i => i.priceTotal)
+      .reduce((acc, cur) => acc + cur, 0);
+  }
+};
+
+let app = new Vue({ el: '#orders', data, computed });
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
@@ -20,25 +53,13 @@ firebase.auth().onAuthStateChanged(function(user) {
     firebase.database().ref(`users/${uid}/cart`).once('value')
       .then(function(snapshot) {
 	if (snapshot.val()) {
-	  cart = Object.values(snapshot.val());
-	  cart.map(buildItem).forEach(elt => items.appendChild(elt));
+	  const defaults = { size: '8x10', quantity: 1, finish: 'Lustre' };
+	  data.cart = Object.values(snapshot.val())
+	    .map(item => Object.assign({}, item, defaults));
 	}
       });
   }
 });
-
-function buildItem(metadata) {
-  const item = document.createElement('tr');
-  const name = document.createElement('td');
-  name.innerHTML = metadata.name;
-  item.appendChild(name);
-
-  const uuid = document.createElement('td');
-  uuid.innerHTML = metadata.thumbnail;;
-  item.appendChild(uuid);
-
-  return item;
-}
 
 function placeOrder() {
   const order = firebase.database().ref(`users/${uid}/orders`).push();
@@ -48,5 +69,5 @@ function placeOrder() {
 	window.location = snapshot.val().url;
       }
     });
-  order.set({ status: 'open', cart: cart });
+  order.set({ status: 'open', cart: data.cart });
 }

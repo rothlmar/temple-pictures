@@ -43,7 +43,6 @@ exports.placeOrder = functions.database.ref('/users/{uid}/orders/{oid}')
       .then(() => change.after.ref.parent.parent.child('cart').set({}))
   });
 
-
 function orderBody(lineItems, referenceId) {
   return {
     idempotency_key: uuidv4(),
@@ -58,11 +57,23 @@ function orderBody(lineItems, referenceId) {
 }
 
 function lineItems(cart) {
+  const priceMap = {
+    '4x6 (Pack of 5)': 10,
+    '5x7': 5,
+    '8x10': 10,
+    '8x12': 12,
+    '12x16': 15,
+    '12x18': 17,
+    '16x20': 25,
+    '16x24': 30,
+    '20x30': 50
+  }
+
   return cart.map(item => {
-    return { name: item.name,
-	     quantity: '1',
+    return { name: `${item.size} ${item.name}, ${item.finish}`,
+	     quantity: item.quantity.toString(),
 	     base_price_money: {
-	       amount: 100,
+	       amount: priceMap[item.size]*100,
 	       currency: 'USD'
 	     }
 	   }
