@@ -34,7 +34,10 @@ function buildCard(metadata) {
   card.className = 'card mb-4 shadow-sm';
 
   const img = document.createElement('img');
-  img.className = 'card-img-top'
+  img.className = 'card-img-top';
+  if (metadata.orientation === 'portrait') {
+    img.style.width = '70%';
+  }
   img.src = `/temples/${metadata.thumbnail}`;
   card.appendChild(img);
 

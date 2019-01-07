@@ -29,22 +29,33 @@ const priceMap = {
   '20x30': 50
 }
 
-let computed = {
+const computed = {
   prices: function() {
     return this.cart.map(item => {
-      const price = priceMap[item.size];
-      const priceTotal = item.quantity >= 0 ? item.quantity*price : 0;
-      return { price, priceTotal };
+      return item.lineItems.map(lineItem => {
+	const price = priceMap[lineItem.size];
+	const priceTotal = lineItem.quantity >= 0 ? lineItem.quantity*price : 0;
+	return { price, priceTotal };
+      })
     })
   },
   totalPrice: function() {
     return this.prices
+      .flat()
       .map(i => i.priceTotal)
       .reduce((acc, cur) => acc + cur, 0);
   }
 };
 
-let app = new Vue({ el: '#orders', data, computed });
+const defaults = { size: '8x10', quantity: 1, finish: 'Lustre' };
+
+const methods = {
+  addLineItem: function(item) {
+    item.lineItems.push(Object.assign({}, defaults));
+  }
+}
+
+let app = new Vue({ el: '#orders', data, computed, methods });
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
@@ -53,9 +64,12 @@ firebase.auth().onAuthStateChanged(function(user) {
     firebase.database().ref(`users/${uid}/cart`).once('value')
       .then(function(snapshot) {
 	if (snapshot.val()) {
-	  const defaults = { size: '8x10', quantity: 1, finish: 'Lustre' };
 	  data.cart = Object.values(snapshot.val())
-	    .map(item => Object.assign({}, item, defaults));
+	    .map(item => {
+	      const lineItems = { lineItems: [Object.assign({}, defaults)] };
+	      return Object.assign({}, item, lineItems)
+
+	    });
 	}
       });
   }

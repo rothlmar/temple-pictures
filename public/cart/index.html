@@ -36,44 +36,71 @@
       </section>
 
       <div class="container" id="orders">
-	<table class="table">
-	  <thead>
-	    <tr>
-	      <th>Name</th>
-	      <th>Size</th>
-	      <th>Quantity</th>
-	      <th>Finish</th>
-	      <th>Price (each)</th>
-	      <th>Price (total)</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    <tr v-for="(item, index) in cart">
-	      <td>{{ item.name }}</td>
-	      <td>
-		<select class="form-control" v-model="item.size">
-		  <option v-for="size in sizes">{{ size }}</option>
-		</select>
-	      </td>
-	      <td>
-		<input class="form-control"
-		       v-model="item.quantity"
-		       type="number">
-	      </td>
-	      <td>
-		<select class="form-control" v-model="item.finish">
-		  <option v-for="finish in finishes">{{ finish }}</option>
-		</select>
-	      </td>
-	      <td>{{ prices[index].price }}</td>
-	      <td>{{ prices[index].priceTotal }}</td>
-	    </tr>
-	    <tr>
-	      <td colspan="5">Total Order:</td>
-	      <td>{{ totalPrice }}</td>
-	    </tr>
-	  </tbody>
-	</table>
+	<div class="table-responsive-sm">
+	  <table class="table">
+	    <!-- <thead> -->
+	    <!--   <tr> -->
+	    <!-- 	<th>Name</th> -->
+	    <!-- 	<th>Order Details</th> -->
+	    <!--   </tr> -->
+	    <!-- </thead> -->
+	    <tbody>
+	      <tr v-for="(item, idx) in cart">
+		<th scope="row">
+		  {{ item.name }}
+		  <br>
+		  <img :src="'/temples/' + item.thumbnail"
+		       :width="item.orientation === 'portrait' ? '50%' : '70%'">
+		</th>
+		<td>
+		  <table class="table table-borderless table-sm">
+		    <thead>
+		      <tr>
+			<th>Size</th>
+			<th>Quantity</th>
+			<th>Finish</th>
+			<th>Price (each)</th>
+			<th>Price (total)</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      <tr v-for="(lineItem, jdx) in item.lineItems">
+			<td>
+			  <select class="form-control" v-model="lineItem.size">
+			    <option v-for="size in sizes">{{ size }}</option>
+			  </select>
+			</td>
+			<td>
+			  <input class="form-control"
+				 v-model="lineItem.quantity"
+				 type="number">
+			</td>
+			<td>
+			  <select class="form-control"
+				  v-model="lineItem.finish">
+			    <option v-for="finish in finishes">
+			      {{ finish }}
+			    </option>
+			  </select>
+			</td>
+			<td>${{ prices[idx][jdx].price }}</td>
+			<td>${{ prices[idx][jdx].priceTotal }}</td>
+		      </tr>
+		    </tbody>
+		  </table>
+		  <button class="btn btn-secondary btn-sm"
+			  v-on:click="addLineItem(item)">
+		    Add
+		  </button>
+		</td>
+	      </tr>
+	      <tr>
+		<th scope="row">Total Order Price:</th>
+		<td>${{ totalPrice }}</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</div>
 	<button class="btn btn-primary" onclick="placeOrder()">
 	  Buy Now
 	</button>

@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const uuidv4 = require('uuid/v4');
 const axios = require('axios');
+const _ = require('lodash');
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -69,13 +70,14 @@ function lineItems(cart) {
     '20x30': 50
   }
 
-  return cart.map(item => {
-    return { name: `${item.size} ${item.name}, ${item.finish}`,
-	     quantity: item.quantity.toString(),
-	     base_price_money: {
-	       amount: priceMap[item.size]*100,
-	       currency: 'USD'
-	     }
-	   }
-  });
+  return _.flatten(cart.map(item => {
+    return item.lineItems.map(lineItem => ({
+      name: `${lineItem.size} ${item.name}, ${lineItem.finish}`,
+      quantity: lineItem.quantity.toString(),
+      base_price_money: {
+	amount: priceMap[lineItem.size]*100,
+	currency: 'USD'
+      }
+    }))
+  }));
 }

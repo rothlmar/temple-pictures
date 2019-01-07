@@ -12,6 +12,7 @@
     "axios": "^0.18.0",
     "firebase-admin": "~6.0.0",
     "firebase-functions": "^2.1.0",
+    "lodash": "^4.17.11",
     "uuid": "^3.3.2"
   },
   "private": true
