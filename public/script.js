@@ -7,59 +7,39 @@ var config = {
   messagingSenderId: "842831559552"
 };
 firebase.initializeApp(config);
+firebase.auth().signInAnonymously().catch(console.log);
 
-let uid;
+let data = {
+  gallery: [],
+  cart: [],
+  uid: ''
+}
 
-firebase.database().ref('/temples').once('value')
-  .then(function(snapshot) {
-    const gallery = document.getElementById('gallery');
-    snapshot.val().map(buildCard).forEach(elt => gallery.appendChild(elt));
-  });
-
-firebase.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    uid = user.uid;
+firebase.database().ref('/temples').once('value').then(function(snapshot) {
+  if (snapshot.val()) {
+    data.gallery = Object.values(snapshot.val());
   }
 });
 
-function addItemToCart(metadata) {
-  const cart = firebase.database().ref(`users/${uid}/cart`).push();
-  cart.set(metadata)
-}
-
-firebase.auth().signInAnonymously().catch(console.log);
-
-function buildCard(metadata) {
-  const card = document.createElement('div');
-  card.className = 'card mb-4 shadow-sm';
-
-  const img = document.createElement('img');
-  img.className = 'card-img-top';
-  if (metadata.orientation === 'portrait') {
-    img.style.width = '70%';
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    data.uid = user.uid;
+    firebase.database().ref(`users/${user.uid}/cart`).once('value')
+      .then(function(snapshot) {
+	if (snapshot.val()) {
+	  console.log(snapshot.val());
+	  Object.values(snapshot.val()).forEach(item => data.cart.push(item.thumbnail));
+	}
+      });
   }
-  img.src = `/temples/${metadata.thumbnail}`;
-  card.appendChild(img);
+});
 
-  const body = document.createElement('div');
-  body.className = 'card-body';
-  card.appendChild(body);
-
-  const title = document.createElement('h5');
-  title.className = 'card-title'
-  title.innerHTML = metadata.name;
-  body.appendChild(title);
-
-  const text = document.createElement('p');
-  text.className='card-text';
-  text.innerHTML = metadata.description || '';
-  body.appendChild(text);
-
-  const addToCart = document.createElement('button')
-  addToCart.className = 'btn btn-primary';
-  addToCart.innerHTML = 'Add to Cart';
-  addToCart.onclick = function() { addItemToCart(metadata) };
-  body.appendChild(addToCart);
-
-  return card;
+const methods = {
+  addItemToCart: function(metadata) {
+    const cart = firebase.database().ref(`users/${this.uid}/cart`).push();
+    cart.set(metadata);
+    data.cart.push(metadata.thumbnail);
+  }
 }
+
+let app = new Vue({ el: '#root', data, methods });

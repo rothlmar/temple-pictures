@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Photographs of Latter Day Temples</title>
+    <title>Temples For Our Times</title>
 
     <link rel="stylesheet"
 	  href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
@@ -21,16 +21,16 @@
   <body>
     <header>
       <nav class="navbar fixed-top navbar-dark bg-dark">
-	<a class="navbar-brand" href="/">Temple Photos</a>
-	<a class="btn btn-light" href="/cart/">Checkout</a>
+	<a class="navbar-brand" href="/">Temples For Our Times</a>
+	<a class="nav-link" href="/">Gallery</a>
       </nav>
     </header>
     <main role="main">
       <section class="jumbotron text-center">
 	<div class="container">
-	  <h1 class="jumbotron-heading">Order Page</h1>
+	  <h1 class="jumbotron-heading">Place Order</h1>
 	  <p class="lead text-muted">
-	    Place Order Here
+	    Please choose print sizes and quantities, then complete order.
 	  </p>
 	</div>
       </section>
@@ -38,19 +38,19 @@
       <div class="container" id="orders">
 	<div class="table-responsive-sm">
 	  <table class="table">
-	    <!-- <thead> -->
-	    <!--   <tr> -->
-	    <!-- 	<th>Name</th> -->
-	    <!-- 	<th>Order Details</th> -->
-	    <!--   </tr> -->
-	    <!-- </thead> -->
 	    <tbody>
-	      <tr v-for="(item, idx) in cart">
+	      <tr v-for="(item, key) in cart">
 		<th scope="row">
 		  {{ item.name }}
 		  <br>
 		  <img :src="'/temples/' + item.thumbnail"
 		       :width="item.orientation === 'portrait' ? '50%' : '70%'">
+		  <div class="mt-2">
+		    <button class="btn btn-light btn-sm"
+			    v-on:click="removeItem(key)">
+		      &#x2716; Remove from Order
+		    </button>
+		  </div>
 		</th>
 		<td>
 		  <table class="table table-borderless table-sm">
@@ -59,8 +59,8 @@
 			<th>Size</th>
 			<th>Quantity</th>
 			<th>Finish</th>
-			<th>Price (each)</th>
-			<th>Price (total)</th>
+			<th>Price</th>
+			<th>&nbsp;</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -83,15 +83,27 @@
 			    </option>
 			  </select>
 			</td>
-			<td>${{ prices[idx][jdx].price }}</td>
-			<td>${{ prices[idx][jdx].priceTotal }}</td>
+			<td>${{ prices[key][jdx].priceTotal }}</td>
+			<td>
+			  <button class="btn btn-light btn-sm"
+				  v-on:click="removeLineItem(item, jdx)">
+			    &#x2716;
+			  </button>
+			</td>
+		      </tr>
+		      <tr>
+			<td colspan="4">
+			  &nbsp;
+			</td>
+			<td>
+			  <button class="btn btn-light btn-sm"
+				  v-on:click="addLineItem(item)">
+			    &#x2795;
+			  </button>
+			</td>
 		      </tr>
 		    </tbody>
 		  </table>
-		  <button class="btn btn-secondary btn-sm"
-			  v-on:click="addLineItem(item)">
-		    Add
-		  </button>
 		</td>
 	      </tr>
 	      <tr>
@@ -101,9 +113,112 @@
 	    </tbody>
 	  </table>
 	</div>
-	<button class="btn btn-primary" onclick="placeOrder()">
-	  Buy Now
-	</button>
+	<div class="row">
+	  <div class="col-md-8">
+	    <div class="card">
+	      <h5 class="card-header">Shipping Information</h5>
+	      <div class="card-body">
+		<form>
+		  <div class="form-row">
+		    <div class="col">
+		      <div class="form-group">
+			<label for="email">Email address</label>
+			<input type="email"
+			       class="form-control"
+			       id="email"
+			       v-model="shipping.email">
+		      </div>
+		    </div>
+		  </div>
+		  <div class="form-row">
+		    <div class="col">
+		      <div class="form-group">
+			<label for="firstName">First Name</label>
+			<input type="text"
+			       class="form-control"
+			       id="firstName"
+			       v-model="shipping.firstName">
+		      </div>
+		    </div>
+		    <div class="col">
+		      <div class="form-group">
+			<label for="lastName">Last Name</label>
+			<input type="text"
+			       class="form-control"
+			       id="lastName"
+			       v-model="shipping.lastName">
+		      </div>
+		    </div>
+		  </div>
+		  <div class="form-row">
+		    <div class="col">
+		      <div class="form-group">
+			<label for="address1">Street address</label>
+			<input type="text"
+			       class="form-control"
+			       id="address1"
+			       v-model="shipping.address1">
+		      </div>
+		    </div>
+		  </div>
+		  <div class="form-row">
+		    <div class="col">
+		      <div class="form-group">
+			<label for="address2">
+			  Address line 2 (optional)
+			</label>
+			<input type="text"
+			       class="form-control"
+			       id="address2"
+			       v-model="shipping.address2">
+		      </div>
+		    </div>
+		  </div>
+		  <div class="form-row">
+		    <div class="col">
+		      <div class="form-group">
+			<label for="city">City</label>
+			<input type="text"
+			       class="form-control"
+			       id="city"
+			       v-model="shipping.city">
+		      </div>
+		    </div>
+		    <div class="col">
+		      <div class="form-group">
+			<label for="state">State</label>
+			<input type="text"
+			       class="form-control"
+			       id="state"
+			       v-model="shipping.state">
+		      </div>
+		    </div>
+		    <div class="col">
+		      <div class="form-group">
+			<label for="zip">Zip code</label>
+			<input type="text"
+			       class="form-control"
+			       id="zip"
+			       v-model="shipping.zip">
+		      </div>
+		    </div>
+		  </div>
+		</form>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="col-md-4">
+	    <button class="btn btn-primary btn-lg"
+		    v-on:click="placeOrder()"
+		    :disabled="orderInProgress || !addressFilledOut">
+	      Review and Pay
+	    </button>
+	    <div class="alert alert-success mt-2"
+		 v-if="orderInProgress">
+	      Processing, please wait
+	    </div>
+	  </div>
+	</div>
 	<p>
 	  For special requests, e.g. greeting cards, wrapped canvas, metal
 	  prints or gifts, please send an

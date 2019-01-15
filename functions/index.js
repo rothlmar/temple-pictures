@@ -3,9 +3,6 @@ const uuidv4 = require('uuid/v4');
 const axios = require('axios');
 const _ = require('lodash');
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-
 const LOCATION = functions.config().squareup.location;
 const TOKEN = functions.config().squareup.token;
 
@@ -15,7 +12,9 @@ exports.placeOrder = functions.database.ref('/users/{uid}/orders/{oid}')
       return null;
     }
 
-    if (change.after.val().status !== 'open') {
+    const val = change.after.val();
+
+    if (val.status !== 'open') {
       return null;
     }
 
@@ -23,10 +22,12 @@ exports.placeOrder = functions.database.ref('/users/{uid}/orders/{oid}')
     return axios({ url: url,
 		   method: 'post',
 		   headers: { 'Authorization': `Bearer ${TOKEN}` },
-		   data: orderBody(lineItems(change.after.val().cart,
-					     context.params.oid)) })
+		   data: orderBody(lineItems(val.cart),
+				   context.params.oid,
+				   val.shipping.email,
+				   transformAddress(val.shipping)) })
       .then((response) => {
-	change.after.ref.set({
+	change.after.ref.update({
 	  status: 'placed',
 	  url: response.data.checkout.checkout_page_url,
 	  checkout: response.data.checkout
@@ -44,16 +45,29 @@ exports.placeOrder = functions.database.ref('/users/{uid}/orders/{oid}')
       .then(() => change.after.ref.parent.parent.child('cart').set({}))
   });
 
-function orderBody(lineItems, referenceId) {
+function orderBody(lineItems, referenceId, buyerEmail, address) {
   return {
     idempotency_key: uuidv4(),
-    order: {
-      reference_id: referenceId,
-      line_items: lineItems
-    },
-    ask_for_shipping_address: true,
+    order: { reference_id: referenceId, line_items: lineItems },
+    ask_for_shipping_address: false,
+    pre_populate_buyer_email: buyerEmail,
     merchant_support_email: "rothlmar@gmail.com",
+    ask_for_shipping_address: true,
+    pre_populate_shipping_address: address,
     redirect_url: "https://tmpl-884c0.firebaseapp.com/confirm/"
+  }
+}
+
+function transformAddress(shipping) {
+  return {
+    first_name: shipping.firstName,
+    last_name: shipping.lastName,
+    address_line_1: shipping.address1,
+    address_line_2: shipping.address2,
+    locality: shipping.city,
+    administrative_district_level_1: shipping.state,
+    postal_code: shipping.zip,
+    country: 'US'
   }
 }
 
