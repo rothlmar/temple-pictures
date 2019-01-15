@@ -28,15 +28,15 @@ let data = {
 };
 
 const priceDict = {
-  '4x6 (Pack of 5)': 10,
-  '5x7': 5,
-  '8x10': 10,
-  '8x12': 12,
-  '12x16': 15,
-  '12x18': 17,
-  '16x20': 25,
-  '16x24': 30,
-  '20x30': 50
+  '4x6 (Pack of 5)': { 'Lustre': 8, 'Glossy': 8, 'Metallic': 10 },
+  '5x7': { 'Lustre': 4, 'Glossy': 4, 'Metallic': 5 },
+  '8x10': { 'Lustre': 6, 'Glossy': 6, 'Metallic': 7 },
+  '8x12': { 'Lustre': 7, 'Glossy': 7, 'Metallic': 8 },
+  '12x16': { 'Lustre': 20, 'Glossy': 20, 'Metallic': 23 },
+  '12x18': { 'Lustre': 22, 'Glossy': 22, 'Metallic': 25 },
+  '16x20': { 'Lustre': 30, 'Glossy': 30, 'Metallic': 34 },
+  '16x24': { 'Lustre': 36, 'Glossy': 36, 'Metallic': 40 },
+  '20x30': { 'Lustre': 60, 'Glossy': 60, 'Metallic': 65 },
 }
 
 const computed = {
@@ -44,7 +44,7 @@ const computed = {
     const priceMap = {};
     Object.entries(this.cart).forEach(entry => {
       priceMap[entry[0]] = entry[1].lineItems.map(lineItem => {
-	const price = priceDict[lineItem.size];
+	const price = priceDict[lineItem.size][lineItem.finish];
 	const priceTotal = lineItem.quantity >= 0 ? lineItem.quantity*price : 0;
 	return { price, priceTotal };
       });

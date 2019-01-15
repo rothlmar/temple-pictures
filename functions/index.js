@@ -42,7 +42,7 @@ exports.placeOrder = functions.database.ref('/users/{uid}/orders/{oid}')
 	  })
 	}
       })
-      .then(() => change.after.ref.parent.parent.child('cart').set({}))
+      // .then(() => change.after.ref.parent.parent.child('cart').set({}))
   });
 
 function orderBody(lineItems, referenceId, buyerEmail, address) {
@@ -72,24 +72,24 @@ function transformAddress(shipping) {
 }
 
 function lineItems(cart) {
-  const priceMap = {
-    '4x6 (Pack of 5)': 10,
-    '5x7': 5,
-    '8x10': 10,
-    '8x12': 12,
-    '12x16': 15,
-    '12x18': 17,
-    '16x20': 25,
-    '16x24': 30,
-    '20x30': 50
-  }
+const priceDict = {
+  '4x6 (Pack of 5)': { 'Lustre': 8, 'Glossy': 8, 'Metallic': 10 },
+  '5x7': { 'Lustre': 4, 'Glossy': 4, 'Metallic': 5 },
+  '8x10': { 'Lustre': 6, 'Glossy': 6, 'Metallic': 7 },
+  '8x12': { 'Lustre': 7, 'Glossy': 7, 'Metallic': 8 },
+  '12x16': { 'Lustre': 20, 'Glossy': 20, 'Metallic': 23 },
+  '12x18': { 'Lustre': 22, 'Glossy': 22, 'Metallic': 25 },
+  '16x20': { 'Lustre': 30, 'Glossy': 30, 'Metallic': 34 },
+  '16x24': { 'Lustre': 36, 'Glossy': 36, 'Metallic': 40 },
+  '20x30': { 'Lustre': 60, 'Glossy': 60, 'Metallic': 65 },
+}
 
   return _.flatten(cart.map(item => {
     return item.lineItems.map(lineItem => ({
       name: `${lineItem.size} ${item.name}, ${lineItem.finish}`,
       quantity: lineItem.quantity.toString(),
       base_price_money: {
-	amount: priceMap[lineItem.size]*100,
+	amount: priceDict[lineItem.size][lineItem.finish]*100,
 	currency: 'USD'
       }
     }))
