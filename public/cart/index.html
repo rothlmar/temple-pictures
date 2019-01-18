@@ -53,6 +53,45 @@
 		  </div>
 		</th>
 		<td>
+		  <div class="d-md-none">
+		    <div v-for="(lineItem, jdx) in item.lineItems">
+		      <div class="form-group">
+			<label>Size</label>
+			<select class="form-control" v-model="lineItem.size">
+			  <option v-for="size in sizes">{{ size }}</option>
+			</select>
+		      </div>
+		      <div class="form-group">
+			<label>Quantity</label>
+			<input class="form-control"
+			       v-model="lineItem.quantity"
+			       type="number">
+		      </div>
+		      <div class="form-group">
+			<label>Finish</label>
+			<select class="form-control" v-model="lineItem.finish">
+			  <option v-for="finish in finishes">{{ finish }}</option>
+			</select>
+		      </div>
+		      <div class="d-block d-flex justify-content-between">
+			<div>${{ prices[key][jdx].priceTotal }}</div>
+			<div>
+			  <button class="btn btn-light btn-sm"
+				  v-on:click="removeLineItem(item, jdx)">
+			    &#x2716;
+			  </button>
+			</div>
+			<hr>
+		      </div>
+		    </div>
+		    <div>
+		      <button class="btn btn-light btn-sm"
+			      v-on:click="addLineItem(item)">
+			&#x2795;
+		      </button>
+		    </div>
+		  </div>
+		  <div class="d-none d-md-block" >
 		  <table class="table table-borderless table-sm">
 		    <thead>
 		      <tr>
@@ -104,6 +143,7 @@
 		      </tr>
 		    </tbody>
 		  </table>
+		  </div>
 		</td>
 	      </tr>
 	      <tr>
