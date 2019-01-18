@@ -18,14 +18,13 @@ firebase.auth().onAuthStateChanged(function(user) {
     uid = user.uid;
     const urlParams = new URLSearchParams(window.location.search);
     const referenceId = urlParams.get('referenceId');
+    const checkoutId = urlParams.get('checkoutId');
+    const orderId = urlParams.get('orderId');
+    const transactionId = urlParams.get('transactionId');
     firebase.database()
-      .ref(`users/${uid}/orders/${referenceId}/checkout/order`)
-      .once('value')
-      .then(function(snapshot) {
-	if (snapshot.val()) {
-	  document.getElementById('order-details').innerHTML = JSON.stringify(snapshot.val());
-	}
-      });
+      .ref(`users/${uid}/orders/${referenceId}`)
+      .update({ checkoutId, orderId, transactionId });
+    firebase.database().ref(`users/${uid}/cart`).remove();
   }
 });
 
