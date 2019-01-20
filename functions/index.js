@@ -72,32 +72,31 @@ function transformAddress(shipping) {
 }
 
 function lineItems(cart) {
-const priceDict = {
-  '4x6 (Pack of 5)': { 'Lustre': 8, 'Glossy': 8, 'Metallic': 10 },
-  '5x7': { 'Lustre': 4, 'Glossy': 4, 'Metallic': 5 },
-  '8x10': { 'Lustre': 6, 'Glossy': 6, 'Metallic': 7 },
-  '8x12': { 'Lustre': 7, 'Glossy': 7, 'Metallic': 8 },
-  '12x16': { 'Lustre': 20, 'Glossy': 20, 'Metallic': 23 },
-  '12x18': { 'Lustre': 22, 'Glossy': 22, 'Metallic': 25 },
-  '16x20': { 'Lustre': 30, 'Glossy': 30, 'Metallic': 34 },
-  '16x24': { 'Lustre': 36, 'Glossy': 36, 'Metallic': 40 },
-  '20x30': { 'Lustre': 60, 'Glossy': 60, 'Metallic': 65 },
-}
+  const priceDict = {
+    '4x6 (Pack of 5)': { 'Lustre': 8, 'Glossy': 8, 'Metallic': 10 },
+    '5x7': { 'Lustre': 4, 'Glossy': 4, 'Metallic': 5 },
+    '8x10': { 'Lustre': 6, 'Glossy': 6, 'Metallic': 7 },
+    '8x12': { 'Lustre': 7, 'Glossy': 7, 'Metallic': 8 },
+    '12x16': { 'Lustre': 20, 'Glossy': 20, 'Metallic': 23 },
+    '12x18': { 'Lustre': 22, 'Glossy': 22, 'Metallic': 25 },
+    '16x20': { 'Lustre': 30, 'Glossy': 30, 'Metallic': 34 },
+    '16x24': { 'Lustre': 36, 'Glossy': 36, 'Metallic': 40 },
+    '20x30': { 'Lustre': 60, 'Glossy': 60, 'Metallic': 65 },
+  };
 
-  return _.flatten(cart.map(item => {
-    const flatItems = item.lineItems.map(lineItem => ({
-      name: `${lineItem.size} ${item.name}, ${lineItem.finish}`,
-      quantity: lineItem.quantity.toString(),
-      base_price_money: {
-	amount: priceDict[lineItem.size][lineItem.finish]*100,
-	currency: 'USD'
-      }
-    }));
-    if (flatItems.map(i => i.base_price_money.amount).reduce((a,c) => a + c, 0) < 20) {
-      flatItems.push({ name: 'Shipping',
-		       quantity: '1',
-		       base_price_money: { amount: 5, currency: 'USD' } });
+  const flatItems = _.flatten(cart.map(item => item.lineItems.map(lineItem => ({
+    name: `${lineItem.size} ${item.name}, ${lineItem.finish}`,
+    quantity: lineItem.quantity.toString(),
+    base_price_money: {
+      amount: priceDict[lineItem.size][lineItem.finish]*100,
+      currency: 'USD'
     }
-    return flatItems;
-  }));
+  }))));
+  if (flatItems.map(i => i.base_price_money.amount*Number.parseInt(i.quantity))
+      .reduce((a,c) => a + c, 0) < 20*100) {
+    flatItems.push({ name: 'Shipping & Handling',
+		     quantity: '1',
+		     base_price_money: { amount: 500, currency: 'USD' } });
+  }
+  return flatItems;
 }
