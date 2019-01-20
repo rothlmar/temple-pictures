@@ -85,13 +85,19 @@ const priceDict = {
 }
 
   return _.flatten(cart.map(item => {
-    return item.lineItems.map(lineItem => ({
+    const flatItems = item.lineItems.map(lineItem => ({
       name: `${lineItem.size} ${item.name}, ${lineItem.finish}`,
       quantity: lineItem.quantity.toString(),
       base_price_money: {
 	amount: priceDict[lineItem.size][lineItem.finish]*100,
 	currency: 'USD'
       }
-    }))
+    }));
+    if (flatItems.map(i => i.base_price_money.amount).reduce((a,c) => a + c, 0) < 20) {
+      flatItems.push({ name: 'Shipping',
+		       quantity: '1',
+		       base_price_money: { amount: 5, currency: 'USD' } });
+    }
+    return flatItems;
   }));
 }

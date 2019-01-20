@@ -16,6 +16,15 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.7.2/firebase.js"></script>
     <script src="script.js" defer></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-91827645-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-91827645-1');
+    </script>
   </head>
   <body>
     <div id="root">
@@ -54,6 +63,25 @@
 		    <span v-if="!cart.includes(item.thumbnail)">Add to Cart</span>
 		    <span v-if="cart.includes(item.thumbnail)">Added to Cart</span>
 		  </button>
+		</div>
+	      </div>
+	    </div>
+	    <div class="row">
+	      <div class="col">
+		<div class="card">
+		  <div class="card-header">
+		    <h5 class="card-title">About</h5>
+		  </div>
+		  <div class="card-body">
+		    <p class="card-text">
+		      Temples are special places for members of the Church of Jesus
+		      Christ of Latter-Day Saints.  Each one is engraved with the
+		      words "The House Of The Lord," and some of our most sacred
+		      worship takes place there.  I try to highlight the natural
+		      beauty of the temples, while still dpeicting them as real and
+		      accessible.
+		    </p>
+		  </div>
 		</div>
 	      </div>
 	    </div>
